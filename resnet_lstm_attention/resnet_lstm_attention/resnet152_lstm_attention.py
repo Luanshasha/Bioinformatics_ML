@@ -1,0 +1,148 @@
+﻿"""
+Adapted from keras example cifar10_cnn.py
+Train ResNet-18 on the CIFAR10 small images dataset.
+
+GPU run command with Theano backend (with TensorFlow, the GPU is automatically used):
+    THEANO_FLAGS=mode=FAST_RUN,device=gpu,floatX=float32 python cifar10.py
+"""
+from __future__ import print_function
+from keras.datasets import cifar10
+from keras.preprocessing.image import ImageDataGenerator
+from keras.utils import np_utils
+from keras.callbacks import ReduceLROnPlateau, CSVLogger, EarlyStopping
+from sklearn.model_selection import train_test_split
+import numpy as np
+import resnet_change
+import sys
+import keras
+import pandas as pd
+import random
+from sklearn.utils import shuffle
+from keras.models import Model
+from keras.callbacks import ModelCheckpoint
+import os
+from sklearn.model_selection import GridSearchCV
+
+
+
+input_data = sys.argv[1]
+output_results =sys.argv[2]
+#flatten_name = output_results.split(".")[0]
+batch_size_num = int(sys.argv[3])
+modelpath = sys.argv[4]
+model_name = modelpath.split('.')[0]
+
+
+checkpoint = ModelCheckpoint(modelpath,
+ monitor='val_acc',
+ verbose=1,
+ save_best_only=True,
+ mode='max',
+ period=1)
+
+
+lr_reducer = ReduceLROnPlateau(factor=np.sqrt(0.1), cooldown=0, patience=5, min_lr=0.5e-6)
+early_stopper = EarlyStopping(min_delta=0.001, patience=10)
+#csv_logger = CSVLogger('resnet18_cifar10.csv')
+#csv_logger = CSVLogger('resnet34_S3_one_hot_suff.csv')
+csv_logger = CSVLogger(output_results)
+
+#batch_size = 4
+#batch_size_num = [4, 8, 16, 32]
+#nb_classes = 10
+nb_classes = 2 ###[1,0]代表1，为正例，[0,1]代表0，为负例
+nb_epoch = 200
+data_augmentation = False
+
+# input image dimensions
+img_rows, img_cols = 41, 4
+#img_channels = 1
+
+'''X_train_2d = pd.read_csv(input_train_data,header=None, index_col=None)
+X_train_2d = np.array(X_train_2d)###776*34
+print(X_train_2d.shape)'''
+
+
+X = np.load(file=input_data)
+
+Y_train_1 = list(map(lambda x: 1, range(len(X) // 2)))
+Y2_1 = list(map(lambda x: 0, range(len(X) // 2)))
+Y_train_1.extend(Y2_1)
+Y_train_2 = list(map(lambda x: 0, range(len(X) // 2)))
+Y2_2 = list(map(lambda x: 1, range(len(X) // 2)))
+Y_train_2.extend(Y2_2)
+Y_train = np.concatenate((np.array([Y_train_1]).T,np.array([Y_train_2]).T),axis=1)
+Y = Y_train
+print(Y.shape)
+print(Y)
+
+###nb_classes = 1
+'''Y = list(map(lambda x: 1, range(len(X) // 2)))
+Y_2 = list(map(lambda x: 0, range(len(X) // 2)))
+Y.extend(Y_2)'''
+
+
+X_train,X_test,Y_train,Y_test = train_test_split(X,Y,test_size=0.4, random_state=32)###按照行随机打乱的，random_state固定保证每次数据打乱的都是一样的顺序
+X_test,X_val,Y_test,Y_val = train_test_split(X_test_val,Y_test_val,test_size=0.5, random_state=32)
+np.save(input_data.split(".")[0] + "_Test_data.npy",X_val)
+pd.DataFrame(Y_val).to_csv(input_data.split('.')[0]+"_Test_label.npy",header=None,index=None)
+
+print(X_train.shape)
+print(np.array(Y_train).shape)
+print(X_test.shape)
+print(np.array(Y_test).shape)
+
+#random.shuffle(X_train_2d_Y_train)###不是按照行打乱的，是随机打乱的
+model = resnet_change.ResnetBuilder.build_resnet_152((img_rows, img_cols), nb_classes) #img_channels,
+
+model.compile(loss='categorical_crossentropy',
+              optimizer='adam',
+              metrics=['accuracy'])
+              
+model.summary()
+
+###提取中间层（flatten_1）的特征
+def extract_layer_feature(base_model,x,y):
+    model = Model(inputs=base_model.input, outputs=base_model.get_layer('flatten_1').output)
+    flatten_1_data = model.predict(x)
+    flatten_1_label  = model.predict(y)
+    return flatten_1_data,flatten_1_label
+
+if not data_augmentation:
+    print('Not using data augmentation.')
+    model.fit(X_train, Y_train,
+                batch_size=batch_size_num,
+                nb_epoch=200,
+                validation_data=(X_test, Y_test),
+                shuffle=True,
+                callbacks=[lr_reducer, early_stopper, csv_logger, checkpoint])
+    #extract_layer_feature(model,X_train)
+    #model.save(model_name)
+else:
+    print('Using real-time data augmentation.')
+    # This will do preprocessing and realtime data augmentation:
+    datagen = ImageDataGenerator(
+        featurewise_center=False,  # set input mean to 0 over the dataset
+        samplewise_center=False,  # set each sample mean to 0
+        featurewise_std_normalization=False,  # divide inputs by std of the dataset
+        samplewise_std_normalization=False,  # divide each input by its std
+        zca_whitening=False,  # apply ZCA whitening
+        rotation_range=0,  # randomly rotate images in the range (degrees, 0 to 180)
+        width_shift_range=0.1,  # randomly shift images horizontally (fraction of total width)
+        height_shift_range=0.1,  # randomly shift images vertically (fraction of total height)
+        horizontal_flip=True,  # randomly flip images
+        vertical_flip=False)  # randomly flip images
+
+    # Compute quantities required for featurewise normalization
+    # (std, mean, and principal components if ZCA whitening is applied).
+    datagen.fit(X_train)
+
+    # Fit the model on the batches generated by datagen.flow().
+    model.fit_generator(datagen.flow(X_train, Y_train, batch_size=batch_size),
+                        steps_per_epoch=X_train.shape[0] // batch_size,
+                        validation_data=(X_test, Y_test),
+                        epochs=nb_epoch, verbose=1, max_q_size=100,
+                        callbacks=[lr_reducer, early_stopper, csv_logger,checkpoint])
+    #extract_layer_feature(model,X_train)
+    #model.save(model_name)
+
