@@ -7,7 +7,7 @@ Explain:
     * gen_type代表输入序列是DNA还是RNA，若是DNA，gen_type就为DNA。<br>
     * fill_NA 代表是否有N填充,此处可以输入 0 或者 1, 0代表有N填充，1相反。<br>
     * iter_times代表8种概率特征融合之后跑迭代的次数，本次论文设置的是60。<br>
-    * cv_number是几折交叉验证，2RFH_distance代表2RFH.py特征提取程序跑出来的特征，使用特征优化程序时步长是多少：默认值是5，代表步长是5。<br><br>
+    * cv_number是几折交叉验证，2RFH_distance代表2RFH.py特征提取程序跑出来的特征，使用特征优化程序时步长是多少：默认值是5，代表步长是5。<br>
     * CPU_value代表CPU运行的核数，windows系统一般输入3，服务器一般输入8。<br>
     * -2rfh 2RFH_distanc：前面代表的是2RFH.py特征提取程序跑出来的特征，2RFH_distanc代表是提取出来的特征跑特征优化（SVM_distance.py文件可见）时的步长。后面的依次类推。总共8种特征提取方法---features_extract.py文件中可见。<br>
     * cv_number,2RFH_distance,AthMethPre_distance,KNN_distance,MMI_distance,PCP_distance,PseDNC_distance,PseEIIP_distance,RFH_distance默认值分别是10，5，10，2，1，5，1，4，5，这些带有默认值的参数，若是不输入自己的参数，就采用默认值；若是输入自己的参数，就使用输入的参数。<br><br>
