@@ -20,3 +20,7 @@ python ItSVM.py -i p_n_seq.fasta -g RNA -f 0 -t 60 -n 5 -c 3 -2rfh 20 -ath 50 -k
 python ItSVM.py -i p_n_seq.fasta -g RNA -f 0 -t 60 -c 3 
 
 
+
+结果：
+生成的8个特征文件在生城的feature_extraction；8个特征文件对应的特征优化结果在生成的svm_distance_result文件中，对应的8种最优概率特征文件为prob_8D.csv,这个概率特征文件迭代之后的结果在result文件中。
+
