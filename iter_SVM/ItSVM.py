@@ -24,7 +24,7 @@ def getopt():
     parser.add_argument('-g', '--gen_type', type=str, help="please input the gen_type of the fasta file", required=True)
     parser.add_argument('-f', '--fill_NA', type=str, help="please input the fill_NA of the fasta file", required=True)
     parser.add_argument('-t', '--times', type=int, help="iterations", required=True)
-    parser.add_argument('-n', '--cv_number', default=10, type=int, help="fold number", required=True)
+    parser.add_argument('-n', '--cv_number', default=10, type=int, help="fold number")
     parser.add_argument('-c', '--CPU_value', type=int, help="the number of cup  you will use")
     parser.add_argument('-2rfh', '--two_RFH_dis', nargs='?', default=5, type=int, help="2RFH distance")
     parser.add_argument('-ath', '--Ath_dis', default=10, type=int, help="AthMethPre distance")
