@@ -484,6 +484,11 @@ def feature_extract(input_data,gene_type,fill_NA):
     ###============================MMI=================================
     print("MMI")
     import math
+    gen_value = 'N'
+    if gen_type == 'DNA':
+        gen_value = 'T'
+    elif gen_type == 'RNA':
+        gen_value = 'U'
     path=""
     outputname=input_data.split(".")[0]+"_"+"MMI.csv"
     sequence=open(path+input_data)
@@ -494,7 +499,10 @@ def feature_extract(input_data,gene_type,fill_NA):
         else:
             seq.append(line.replace('\r','').replace('\n',''))
 
-    chars = ['A', 'C', 'G', 'T']
+    if fill_NA == "0":
+        chars = ['A', 'C', 'G', gen_value]
+    elif fill_NA == "1":
+        chars = ['A', 'C', 'G', gen_value,'N']
     one_char=[''.join(x) for x in itertools.combinations_with_replacement(chars, 1)]
     two_chars = [''.join(x) for x in itertools.combinations_with_replacement(chars, 2)]
     three_chars = [''.join(x) for x in itertools.combinations_with_replacement(chars, 3)]
