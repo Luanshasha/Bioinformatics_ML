@@ -1,23 +1,24 @@
 Explain:
 ====
-论文：Wei, L., et al., Iterative feature representations improve N4-methylcytosine site prediction. Bioinformatics, 2019.<br><br>
-1. 运行代码：`SVM_distance.py`:<br>
-    python SVM_distance.py -i input.fasta -g gen_type -f fill_NA -n cv_number -c CPU_value -d Ath_2RFH_distance<br><br>
-* input.fasta输入是fasta格式文件。<br>
-* gen_type代表输入序列是DNA还是RNA，若是DNA，gen_type就为DNA。<br>
-* fill_NA 代表是否有N填充,此处可以输入 0 或者 1, 0代表没有N填充，1相反。<br>
-* cv_number是几折交叉验证。<br>
-Ath_2RFH_distance代表融合特征combine.csv使用特征优化程序时步长是多少：默认值是5，代表步长是5。<br>
-* CPU_value代表CPU运行的核数，windows系统一般输入3，服务器一般输入8。<br>
+论文：Wei, L., et al., Iterative feature representations improve N4-methylcytosine site prediction. Bioinformatics, 2019.
 
-examples:<br>
-全部参数都设置：<br>
-python SVM_distance.py -i p_n_seq.fasta -g DNA -f 0 -n 10 -c 3 -d 10<br>
-部分参数设置（采用默认值值）：<br>
+1. 运行代码：`SVM_distance.py`:<br>
+    python SVM_distance.py -i input.fasta -g gen_type -f fill_NA -n cv_number -c CPU_value -d Ath_2RFH_distance
+* input.fasta输入是fasta格式文件。<br>
+* gen_type代表输入序列是DNA还是RNA，若是DNA，gen_type就为DNA。
+* fill_NA 代表是否有N填充,此处可以输入 0 或者 1, 0代表没有N填充，1相反。
+* cv_number是几折交叉验证。<br>
+Ath_2RFH_distance代表融合特征combine.csv使用特征优化程序时步长是多少：默认值是5，代表步长是5。
+* CPU_value代表CPU运行的核数，windows系统一般输入3，服务器一般输入8。
+
+Examples:
+全部参数都设置：
+python SVM_distance.py -i p_n_seq.fasta -g DNA -f 0 -n 10 -c 3 -d 10
+部分参数设置（采用默认值值）：
 python SVM_distance.py -i p_n_seq.fasta -g RNA -f 0 
 
 
 
-结果：<br>
+结果：
 生成的两个特征文件在feature_extraction；融合后的combine.csv文件在当前文件夹中；预测结果在predict_results文件中。
 
